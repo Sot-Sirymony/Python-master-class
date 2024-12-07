@@ -1,0 +1,27 @@
+# Let me expand on converting the rest of the functionalities into a complete PyQt6 application. Here's an overview:
+
+# ### Functionalities to Cover:
+# 1. **Add Guest**:
+#    - Create input fields for guest name and contact.
+#    - Add a button to save the guest to the database.
+
+# 2. **Make Reservation**:
+#    - Include fields for guest ID, room ID, check-in, and check-out dates.
+#    - Add validation to ensure correct data is entered.
+#    - Save the reservation using the `make_reservation` method.
+
+# 3. **Check Available Rooms**:
+#    - Display a table listing all available rooms.
+#    - Fetch the data using `get_available_rooms` from the database.
+
+# 4. **Check In**:
+#    - Input field for room ID.
+#    - Update the room status to "occupied."
+
+# 5. **Check Out**:
+#    - Input field for room ID.
+#    - Update the room status to "available."
+
+# 6. **Main Window Navigation**:
+#    - Use `QTabWidget` or a menu-based navigation system for organizing these functionalities.
+
