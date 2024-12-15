@@ -1,2 +1,5 @@
 2024-12-07 14:56:48.372420 - Add Guest: Guest techheng added.
 2024-12-07 14:57:00.352672 - Delete Guest: Guest ID 7 deleted.
+2024-12-15 14:56:17.160553 - Add Guest: Guest mony added.
+2024-12-15 16:22:05.910710 - Make Reservation: Guest ID 8 reserved Room ID 3 from 2024-12-15 to 2024-12-16.
+2024-12-15 16:22:11.229680 - Make Reservation: Guest ID 8 reserved Room ID 3.

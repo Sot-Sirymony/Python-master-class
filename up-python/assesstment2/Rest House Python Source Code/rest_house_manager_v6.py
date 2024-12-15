@@ -2,11 +2,12 @@ import sqlite3
 from datetime import datetime
 import csv
 
-
 class RestHouseManager:
     def __init__(self):
         self.conn = sqlite3.connect('rest_house.db')
         self.create_tables()
+        # Optional: Enforce foreign keys
+        # self.conn.execute("PRAGMA foreign_keys = ON;")
 
     def create_tables(self):
         self.conn.execute('''CREATE TABLE IF NOT EXISTS rooms (
@@ -72,31 +73,17 @@ class RestHouseManager:
         JOIN rooms ro ON r.room_id = ro.id
         '''
         return self.execute_query(query).fetchall()
-    def make_reservation(self, guest_id, room_id, check_in_date, check_out_date):
-        """
-        Makes a reservation by inserting a new record into the reservations table.
-        Optionally, you could add checks here to ensure the room is actually available
-        for the given date range before inserting.
-        """
 
-        # Check if the room is currently available
-        # This step is optional but recommended:
-        # Ensure the room is 'available' before making a reservation.
+    def make_reservation(self, guest_id, room_id, check_in_date, check_out_date):
         room_status = self.execute_query("SELECT status FROM rooms WHERE id=?", (room_id,)).fetchone()
         if not room_status or room_status[0].lower() != 'available':
             raise Exception(f"Room ID {room_id} is not available for reservation.")
 
-        # Insert the reservation
         self.execute_query(
             "INSERT INTO reservations (guest_id, room_id, check_in_date, check_out_date, status) VALUES (?, ?, ?, ?, 'Reserved')",
             (guest_id, room_id, check_in_date, check_out_date)
         )
-
-        # Update the room status to 'occupied' or 'reserved' depending on your logic
-        # If you'd rather mark it as 'booked' or 'reserved', choose a status that fits your application.
         self.update_room_status(room_id, 'occupied')
-
-        # Optionally, log the action
         self.log_action("Make Reservation", f"Guest ID {guest_id} reserved Room ID {room_id} from {check_in_date} to {check_out_date}.")
 
     def update_reservation_status(self, reservation_id, status):
@@ -132,13 +119,13 @@ class RestHouseManager:
 
         with open(file_name, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(columns)  # Write header
+            writer.writerow(columns)
             writer.writerows(rows)
 
     def import_from_csv(self, table_name, file_name):
         with open(file_name, 'r') as file:
             reader = csv.reader(file)
-            columns = next(reader)  # Read header
+            columns = next(reader)
             placeholders = ", ".join(["?" for _ in columns])
             for row in reader:
                 self.execute_query(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})", row)
