@@ -1,0 +1,192 @@
+/* Toolbar Styling */
+QToolBar {
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #dcdcdc;
+    padding: 10px;
+    color: black;
+    font-size: 18px;
+}
+
+QToolButton {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    padding: 8px 15px;
+    margin: 3px;
+    font-size: 16px;
+    color: #333333;
+}
+
+QToolButton:hover {
+    background-color: #e6f7ff;
+    border-color: #0078d4;
+}
+
+QToolButton:pressed {
+    background-color: #d6eaf8;
+    border-color: #005a9e;
+}
+
+/* Toolbar Styling */
+QToolBar QLineEdit {
+    color: black; /* Text color */
+    background-color: #ffffff; /* Input field background */
+    border: 1px solid #dcdcdc; /* Input field border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for input text */
+    padding: 5px; /* Padding inside the input field */
+}
+
+QToolBar QLineEdit:focus {
+    border: 1px solid #0078d4; /* Highlight border on focus */
+    background-color: #f9f9f9; /* Slightly darker background on focus */
+}
+
+
+/* Sidebar Styling */
+QTreeWidget {
+    background-color: #f9f9f9;
+    border: 1px solid #dcdcdc;
+    alternate-background-color: #f3f3f3;
+    color: black;
+    font-size: 18px;
+}
+
+QTreeWidget::item {
+    padding: 12px 20px;
+    color: black;
+}
+
+/* Main Content Area (QStackedWidget) */
+QStackedWidget {
+    background-color: #fafafa; /* Light neutral background for content */
+    border: 2px solid #dcdcdc; /* Subtle border for separation */
+    border-radius: 6px; /* Rounded corners for a modern look */
+    padding: 15px; /* Inner padding for spacing */
+    font-size: 18px; /* Comfortable font size for main content text */
+    color: #333333; /* Neutral text color for readability */
+}
+
+/* Content Labels (Titles, Headings) */
+QStackedWidget QLabel {
+    font-size: 20px; /* Larger font size for headings */
+    font-weight: bold; /* Emphasize headings with bold text */
+    color: #444444; /* Slightly darker text color for contrast */
+    margin-bottom: 10px; /* Space below headings */
+}
+
+/* Subtitles and Secondary Text */
+QStackedWidget QLabel[role="subtitle"] {
+    font-size: 16px; /* Slightly smaller font size for subtitles */
+    color: #666666; /* Muted gray for secondary information */
+    font-style: italic; /* Optional: Italicize subtitles */
+    margin-bottom: 5px; /* Space below subtitles */
+}
+
+/* Interactive Content (e.g., Forms, Inputs) */
+QStackedWidget QLineEdit, QStackedWidget QTextEdit {
+    background-color: #ffffff; /* White background for inputs */
+    color: #333333; /* Neutral text color */
+    border: 1px solid #cccccc; /* Subtle border */
+    border-radius: 4px; /* Rounded corners for inputs */
+    padding: 8px; /* Comfortable padding for text */
+    font-size: 16px; /* Input font size */
+}
+
+QStackedWidget QLineEdit:focus, QStackedWidget QTextEdit:focus {
+    border: 1px solid #0078d4; /* Highlight border on focus */
+    background-color: #f0f8ff; /* Slightly tinted background on focus */
+}
+
+
+/* Footer Styling */
+QStatusBar {
+    background-color: #f9f9f9;
+    border-top: 2px solid #dcdcdc;
+    padding: 10px;
+    color: #333333;
+}
+
+QStatusBar QPushButton {
+    background-color: #0078d4;
+    color: white;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* Footer and Status Bar Styling */
+QStatusBar {
+    background-color: #f9f9f9; /* Light background to match the theme */
+    border-top: 2px solid #dcdcdc; /* Subtle top border for separation */
+    padding: 10px; /* Add padding for a spacious look */
+    color: #333333; /* Neutral text color for readability */
+    font-size: 16px; /* Comfortable font size for footer text */
+}
+
+/* Footer Labels */
+QStatusBar QLabel {
+    font-size: 14px; /* Slightly smaller font for secondary information */
+    color: #666666; /* Gray text for less prominent details */
+}
+
+/* Footer Buttons */
+QStatusBar QPushButton {
+    background-color: #0078d4; /* Blue background for buttons */
+    color: white; /* White text for contrast */
+    border: 1px solid #005a9e; /* Subtle border */
+    border-radius: 6px; /* Rounded corners for modern look */
+    padding: 6px 12px; /* Comfortable padding for clickable area */
+    font-size: 14px; /* Font size matching footer labels */
+    margin-left: 10px; /* Space between buttons */
+}
+
+/* Hover and Pressed States for Footer Buttons */
+QStatusBar QPushButton:hover {
+    background-color: #005a9e; /* Darker blue for hover effect */
+    border-color: #004578; /* Darker border on hover */
+}
+
+QStatusBar QPushButton:pressed {
+    background-color: #004578; /* Even darker blue for pressed state */
+    border-color: #003e6b; /* Darkest border for pressed state */
+    padding: 5px 11px; /* Slight shrink effect for pressed feedback */
+}
+
+/* Footer Icons (Optional if you have icons in footer) */
+QStatusBar QToolButton {
+    background-color: transparent; /* Transparent background */
+    color: #0078d4; /* Blue color for icons */
+    font-size: 16px; /* Slightly larger font size */
+    padding: 4px 8px; /* Padding around icons */
+    border: none; /* No border for clean icon design */
+}
+
+QStatusBar QToolButton:hover {
+    background-color: #e6f7ff; /* Light hover effect for icons */
+    border-radius: 4px; /* Slight rounding for hover effect */
+}
+
+/* for dark mode button style */
+/* Dark Mode Toggle Button Styling */
+QPushButton#darkModeButton {
+    background-color: #0078d4; /* Blue background */
+    color: white; /* White text */
+    border: 1px solid #005a9e; /* Subtle border */
+    border-radius: 6px; /* Rounded corners */
+    padding: 6px 12px; /* Comfortable padding */
+    font-size: 14px; /* Font size for text */
+}
+
+QPushButton#darkModeButton:hover {
+    background-color: #005a9e; /* Darker blue on hover */
+    border-color: #004578; /* Darker border */
+}
+
+QPushButton#darkModeButton:pressed {
+    background-color: #004578; /* Even darker blue on press */
+    border-color: #003e6b; /* Darkest border */
+    padding: 5px 11px; /* Slight shrink effect */
+}
+
+
