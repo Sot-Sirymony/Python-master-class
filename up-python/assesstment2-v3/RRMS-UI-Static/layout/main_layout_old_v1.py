@@ -1,13 +1,13 @@
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QToolBar, QStatusBar, QVBoxLayout,
-    QSplitter, QTreeWidget, QTreeWidgetItem, QStackedWidget,
-    QLabel, QLineEdit, QPushButton, QSizePolicy, QWidget
+    QHBoxLayout, QWidget, QLineEdit, QSplitter, QTreeWidget, QTreeWidgetItem,
+    QStackedWidget, QLabel, QPushButton,QSizePolicy
 )
+# from utils import load_stylesheet
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QAction
 from utils.stylesheet_loader import load_stylesheet
-from modules.room_management import RoomPropertyManagementUI  # Import your module
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,17 +17,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Room Rental Management System")
         self.resize(1024, 768)
 
-        # Initialize Room Management UI before sidebar
-        self.room_property_management_ui = RoomPropertyManagementUI()
-
         # Sections Map
         self.sections = [
             "Dashboard", "Properties & Rooms", "Tenants", "Leases", 
             "Payments", "Bookings", "Reports"
         ]
-        self.sidebar_action_map = {}
+        self.section_index_map = {name: i for i, name in enumerate(self.sections)}
 
         # Initialize Layout Components
+
         self.init_toolbar()
         self.init_sidebar()
         self.init_main_content()
@@ -42,26 +40,25 @@ class MainWindow(QMainWindow):
         # Set Central Widget
         central_widget = QWidget()
         layout = QVBoxLayout()
+        #layout.addWidget(self.header)  # Add the header
         layout.addWidget(splitter)
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
-
+  
     def toggle_dark_mode(self):
         if hasattr(self, "_dark_mode") and self._dark_mode:
             self.disable_dark_mode()
             self._dark_mode = False
         else:
             self.enable_dark_mode()
-            self._dark_mode = True
-
+            self._dark_mode = True  
     def enable_dark_mode(self):
         stylesheet = load_stylesheet(mode="dark_mode", subdirectory="main-layout")
         self.setStyleSheet(stylesheet)
 
     def disable_dark_mode(self):
         stylesheet = load_stylesheet(mode="light_mode", subdirectory="main-layout")
-        self.setStyleSheet(stylesheet)
-
+        self.setStyleSheet(stylesheet)        
     def init_toolbar(self):
         toolbar = QToolBar("Main Toolbar")
         self.addToolBar(toolbar)
@@ -91,7 +88,7 @@ class MainWindow(QMainWindow):
         self.dark_mode_button = QPushButton("🌙 Dark Mode")
         self.dark_mode_button.setObjectName("darkModeButton")
         self.dark_mode_button.clicked.connect(self.toggle_dark_mode)
-        toolbar.addWidget(self.dark_mode_button)
+        toolbar.addWidget(self.dark_mode_button)   
 
     def init_sidebar(self):
         self.sidebar = QTreeWidget()
@@ -100,12 +97,13 @@ class MainWindow(QMainWindow):
         # Add Sidebar Items
         sections = {
             "Dashboard": [],
-            "Properties & Rooms": [
-                "Add Property", 
-                "View Properties", 
-                "Add Room", 
+            "Properties & Rooms": 
+                [
+                "Add Property",
+                "View Properties"
+                "Add Room",
                 "View Rooms"
-            ],
+                ],
             "Tenants": ["Add Tenant", "View Tenants"],
             "Payments": ["Record Payment", "Payment History"],
             "Reports": ["Rent Collection", "Occupancy Rates"]
@@ -116,37 +114,19 @@ class MainWindow(QMainWindow):
             for subsection in subsections:
                 child_item = QTreeWidgetItem([subsection])
                 parent_item.addChild(child_item)
-                self.map_sidebar_action(subsection)
             self.sidebar.addTopLevelItem(parent_item)
 
         self.sidebar.itemClicked.connect(self.handle_sidebar_click)
 
-    def map_sidebar_action(self, subsection):
-        if subsection == "Add Property":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_property_form
-        elif subsection == "View Properties":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_property_table
-        elif subsection == "Add Room":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_room_form
-        elif subsection == "View Rooms":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_room_table
-
     def handle_sidebar_click(self, item, column):
         section = item.text(column)
-
-        if section in self.sidebar_action_map:
-            self.sidebar_action_map[section]()
-        elif section in self.sections:  # Handle parent sections
-            print(f"Switched to parent section: {section}")
-            if section == "Properties & Rooms":
-                self.main_content.setCurrentWidget(self.room_property_management_ui)
+        if section in self.section_index_map:
+            self.switch_module(section)
         else:
             print(f"Unknown section: {section}")
 
     def init_main_content(self):
         self.main_content = QStackedWidget()
-
-        # Add placeholders for other sections
         for section in self.sections:
             placeholder = QWidget()
             layout = QVBoxLayout()
@@ -154,22 +134,34 @@ class MainWindow(QMainWindow):
             placeholder.setLayout(layout)
             self.main_content.addWidget(placeholder)
 
-        # Add Room and Property Management Module
-        self.main_content.addWidget(self.room_property_management_ui)
-
     def init_footer(self):
         footer = QStatusBar()
         self.setStatusBar(footer)
 
+        # Footer Components
         footer.addWidget(QLabel("Version 1.0"))
         footer.addWidget(QPushButton("Help"))
         footer.addWidget(QPushButton("Contact Support"))
 
     def switch_module(self, section):
-        print(f"Switched to {section}")
+        index = self.section_index_map.get(section, -1)
+        if index >= 0:
+            self.main_content.setCurrentIndex(index)
+            print(f"Switched to {section} module")
+            self.load_contextual_data(section)
+        else:
+            print(f"Invalid module: {section}")
+
+    def load_contextual_data(self, section):
+        if section == "Dashboard":
+            self.load_dashboard_data()
+        elif section == "Payments":
+            self.load_payments_data()
+        # Add logic for other sections here
 
     def load_dashboard_data(self):
         print("Loading dashboard data...")
 
     def load_payments_data(self):
         print("Loading payment data...")
+

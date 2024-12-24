@@ -1,12 +1,12 @@
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QToolBar, QStatusBar, QVBoxLayout,
-    QSplitter, QTreeWidget, QTreeWidgetItem, QStackedWidget,
-    QLabel, QLineEdit, QPushButton, QSizePolicy, QWidget
+    QHBoxLayout, QWidget, QLineEdit, QSplitter, QTreeWidget, QTreeWidgetItem,
+    QStackedWidget, QLabel, QPushButton, QSizePolicy
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QAction
 from utils.stylesheet_loader import load_stylesheet
-from modules.room_management import RoomPropertyManagementUI  # Import your module
+from modules.room_management import RoomPropertyManagementUI  # Adjust import if necessary
 
 
 class MainWindow(QMainWindow):
@@ -17,15 +17,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Room Rental Management System")
         self.resize(1024, 768)
 
-        # Initialize Room Management UI before sidebar
-        self.room_property_management_ui = RoomPropertyManagementUI()
-
         # Sections Map
         self.sections = [
             "Dashboard", "Properties & Rooms", "Tenants", "Leases", 
             "Payments", "Bookings", "Reports"
         ]
-        self.sidebar_action_map = {}
+        self.section_index_map = {name: i for i, name in enumerate(self.sections)}
 
         # Initialize Layout Components
         self.init_toolbar()
@@ -100,12 +97,7 @@ class MainWindow(QMainWindow):
         # Add Sidebar Items
         sections = {
             "Dashboard": [],
-            "Properties & Rooms": [
-                "Add Property", 
-                "View Properties", 
-                "Add Room", 
-                "View Rooms"
-            ],
+            "Properties & Rooms": ["Add Property", "View Properties"],
             "Tenants": ["Add Tenant", "View Tenants"],
             "Payments": ["Record Payment", "Payment History"],
             "Reports": ["Rent Collection", "Occupancy Rates"]
@@ -116,30 +108,14 @@ class MainWindow(QMainWindow):
             for subsection in subsections:
                 child_item = QTreeWidgetItem([subsection])
                 parent_item.addChild(child_item)
-                self.map_sidebar_action(subsection)
             self.sidebar.addTopLevelItem(parent_item)
 
         self.sidebar.itemClicked.connect(self.handle_sidebar_click)
 
-    def map_sidebar_action(self, subsection):
-        if subsection == "Add Property":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_property_form
-        elif subsection == "View Properties":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_property_table
-        elif subsection == "Add Room":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_room_form
-        elif subsection == "View Rooms":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_room_table
-
     def handle_sidebar_click(self, item, column):
         section = item.text(column)
-
-        if section in self.sidebar_action_map:
-            self.sidebar_action_map[section]()
-        elif section in self.sections:  # Handle parent sections
-            print(f"Switched to parent section: {section}")
-            if section == "Properties & Rooms":
-                self.main_content.setCurrentWidget(self.room_property_management_ui)
+        if section in self.section_index_map:
+            self.switch_module(section)
         else:
             print(f"Unknown section: {section}")
 
@@ -155,18 +131,35 @@ class MainWindow(QMainWindow):
             self.main_content.addWidget(placeholder)
 
         # Add Room and Property Management Module
+        self.room_property_management_ui = RoomPropertyManagementUI()
         self.main_content.addWidget(self.room_property_management_ui)
+
+        # Update the section index map for the new module
+        self.section_index_map["Properties & Rooms"] = self.main_content.indexOf(self.room_property_management_ui)
 
     def init_footer(self):
         footer = QStatusBar()
         self.setStatusBar(footer)
 
+        # Footer Components
         footer.addWidget(QLabel("Version 1.0"))
         footer.addWidget(QPushButton("Help"))
         footer.addWidget(QPushButton("Contact Support"))
 
     def switch_module(self, section):
-        print(f"Switched to {section}")
+        index = self.section_index_map.get(section, -1)
+        if index >= 0:
+            self.main_content.setCurrentIndex(index)
+            print(f"Switched to {section} module")
+            self.load_contextual_data(section)
+        else:
+            print(f"Invalid module: {section}")
+
+    def load_contextual_data(self, section):
+        if section == "Dashboard":
+            self.load_dashboard_data()
+        elif section == "Payments":
+            self.load_payments_data()
 
     def load_dashboard_data(self):
         print("Loading dashboard data...")

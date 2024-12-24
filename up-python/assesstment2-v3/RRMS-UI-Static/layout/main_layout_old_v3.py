@@ -17,15 +17,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Room Rental Management System")
         self.resize(1024, 768)
 
-        # Initialize Room Management UI before sidebar
-        self.room_property_management_ui = RoomPropertyManagementUI()
-
         # Sections Map
         self.sections = [
             "Dashboard", "Properties & Rooms", "Tenants", "Leases", 
             "Payments", "Bookings", "Reports"
         ]
-        self.sidebar_action_map = {}
+        self.section_index_map = {}
 
         # Initialize Layout Components
         self.init_toolbar()
@@ -116,30 +113,20 @@ class MainWindow(QMainWindow):
             for subsection in subsections:
                 child_item = QTreeWidgetItem([subsection])
                 parent_item.addChild(child_item)
-                self.map_sidebar_action(subsection)
             self.sidebar.addTopLevelItem(parent_item)
 
         self.sidebar.itemClicked.connect(self.handle_sidebar_click)
 
-    def map_sidebar_action(self, subsection):
-        if subsection == "Add Property":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_property_form
-        elif subsection == "View Properties":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_property_table
-        elif subsection == "Add Room":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_add_room_form
-        elif subsection == "View Rooms":
-            self.sidebar_action_map[subsection] = self.room_property_management_ui.show_room_table
-
     def handle_sidebar_click(self, item, column):
         section = item.text(column)
-
-        if section in self.sidebar_action_map:
-            self.sidebar_action_map[section]()
-        elif section in self.sections:  # Handle parent sections
-            print(f"Switched to parent section: {section}")
-            if section == "Properties & Rooms":
-                self.main_content.setCurrentWidget(self.room_property_management_ui)
+        if section == "Add Property":
+            self.room_property_management_ui.show_add_property_form()
+        elif section == "View Properties":
+            self.room_property_management_ui.show_property_table()
+        elif section == "Add Room":
+            self.room_property_management_ui.show_add_room_form()
+        elif section == "View Rooms":
+            self.room_property_management_ui.show_room_table()
         else:
             print(f"Unknown section: {section}")
 
@@ -153,20 +140,36 @@ class MainWindow(QMainWindow):
             layout.addWidget(QLabel(f"{section} Content Area"))
             placeholder.setLayout(layout)
             self.main_content.addWidget(placeholder)
+            self.section_index_map[section] = self.main_content.indexOf(placeholder)
 
         # Add Room and Property Management Module
+        self.room_property_management_ui = RoomPropertyManagementUI()
         self.main_content.addWidget(self.room_property_management_ui)
+        self.section_index_map["Properties & Rooms"] = self.main_content.indexOf(self.room_property_management_ui)
 
     def init_footer(self):
         footer = QStatusBar()
         self.setStatusBar(footer)
 
+        # Footer Components
         footer.addWidget(QLabel("Version 1.0"))
         footer.addWidget(QPushButton("Help"))
         footer.addWidget(QPushButton("Contact Support"))
 
     def switch_module(self, section):
-        print(f"Switched to {section}")
+        index = self.section_index_map.get(section, -1)
+        if index >= 0:
+            self.main_content.setCurrentIndex(index)
+            print(f"Switched to {section} module")
+            self.load_contextual_data(section)
+        else:
+            print(f"Invalid module: {section}")
+
+    def load_contextual_data(self, section):
+        if section == "Dashboard":
+            self.load_dashboard_data()
+        elif section == "Payments":
+            self.load_payments_data()
 
     def load_dashboard_data(self):
         print("Loading dashboard data...")
