@@ -42,33 +42,34 @@ class RoomPropertyManagementUI(QWidget):
     def load_table_stylesheet(self):
         stylesheet = load_stylesheet(mode="room_management", subdirectory="room-management")
         self.setStyleSheet(stylesheet)         
-               
-    # Section: Add Property
     def show_add_property_form(self):
         self.clear_layout()
         property_group = QGroupBox("Add Property")
         property_layout = QFormLayout()
 
+        # Create input fields
         self.property_name_input = QLineEdit()
         self.property_location_input = QLineEdit()
         self.property_description_input = QTextEdit()
         self.property_amenities_input = QComboBox()
         self.property_amenities_input.addItems(["Wi-Fi", "Parking", "Pool"])
 
+        # Add fields to the form
         property_layout.addRow("Property Name:", self.property_name_input)
         property_layout.addRow("Location:", self.property_location_input)
         property_layout.addRow("Description:", self.property_description_input)
         property_layout.addRow("Amenities:", self.property_amenities_input)
 
-        button_layout = QHBoxLayout()
-        save_button = QPushButton("Save Property")
-        save_button.clicked.connect(self.save_property)
+        # Add Save/Cancel buttons
+        self.button_layout = QHBoxLayout()  # Store button layout for later access
+        self.save_button = QPushButton("Save Property")
         cancel_button = QPushButton("Cancel")
         cancel_button.clicked.connect(self.show_property_table)
-        button_layout.addWidget(save_button)
-        button_layout.addWidget(cancel_button)
-        property_layout.addRow(button_layout)
+        self.button_layout.addWidget(self.save_button)
+        self.button_layout.addWidget(cancel_button)
 
+        # Add button layout to the form layout
+        property_layout.addRow(self.button_layout)
         property_group.setLayout(property_layout)
         self.main_layout.addWidget(property_group)
 
@@ -206,10 +207,8 @@ class RoomPropertyManagementUI(QWidget):
                 padding: 10px;
             }
         """)
-
-
-    # Section: Edit Property
     def edit_property(self, row):
+        """Edit a property based on the selected row."""
         self.clear_layout()
         self.show_add_property_form()
 
@@ -218,23 +217,81 @@ class RoomPropertyManagementUI(QWidget):
         self.property_location_input.setText(self.properties_table.item(row, 1).text())
         self.property_amenities_input.setCurrentText(self.properties_table.item(row, 2).text())
 
-        # Safely retrieve the save button
-        property_group = self.main_layout.itemAt(0).widget()  # First widget in the layout
+        # Update Save button behavior
+        if hasattr(self, "button_layout") and self.button_layout:
+            # Clear existing buttons in the layout
+            for i in reversed(range(self.button_layout.count())):
+                self.button_layout.itemAt(i).widget().deleteLater()
+
+            # Add new Save button for update
+            update_button = QPushButton("Update Property")
+            update_button.clicked.connect(lambda: self.update_property(row))
+            self.button_layout.addWidget(update_button)
+
+            # Add Cancel button
+            cancel_button = QPushButton("Cancel")
+            cancel_button.clicked.connect(self.show_property_table)
+            self.button_layout.addWidget(cancel_button)
+        else:
+            print("Button layout not found!")
+    def show_add_property_form(self):
+        self.clear_layout()
+        property_group = QGroupBox("Add Property")
+        property_layout = QFormLayout()
+
+        # Create input fields
+        self.property_name_input = QLineEdit()
+        self.property_location_input = QLineEdit()
+        self.property_description_input = QTextEdit()
+        self.property_amenities_input = QComboBox()
+        self.property_amenities_input.addItems(["Wi-Fi", "Parking", "Pool"])
+
+        # Add fields to the form
+        property_layout.addRow("Property Name:", self.property_name_input)
+        property_layout.addRow("Location:", self.property_location_input)
+        property_layout.addRow("Description:", self.property_description_input)
+        property_layout.addRow("Amenities:", self.property_amenities_input)
+
+        # Add Save/Cancel buttons
+        self.button_layout = QHBoxLayout()  # Store button layout for later access
+        self.save_button = QPushButton("Save Property")
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.show_property_table)
+        self.button_layout.addWidget(self.save_button)
+        self.button_layout.addWidget(cancel_button)
+
+        # Add button layout to the form layout
+        property_layout.addRow(self.button_layout)
+        property_group.setLayout(property_layout)
+        self.main_layout.addWidget(property_group)
+ 
+    def edit_property(self, row):
+        """Edit a property based on the selected row."""
+        self.clear_layout()
+        self.show_add_property_form()
+
+        # Populate form fields with existing data
+        self.property_name_input.setText(self.properties_table.item(row, 0).text())
+        self.property_location_input.setText(self.properties_table.item(row, 1).text())
+        self.property_amenities_input.setCurrentText(self.properties_table.item(row, 2).text())
+
+        # Update Save button behavior
+        property_group = self.main_layout.itemAt(0).widget()  # Fetch the QGroupBox
         if isinstance(property_group, QGroupBox):
             layout = property_group.layout()
-            if layout and layout.itemAt(4):  # Ensure the row exists
+            if layout and layout.itemAt(4):  # Ensure the button layout exists
                 button_layout = layout.itemAt(4).layout()
-                if button_layout and button_layout.itemAt(0):  # Ensure button exists
-                    save_button = button_layout.itemAt(0).widget()
-                    save_button.setText("Update Property")
-                    save_button.clicked.disconnect()
-                    save_button.clicked.connect(lambda: self.update_property(row))
-                else:
-                    print("Save button not found in button layout.")
-            else:
-                print("Button layout not found.")
-        else:
-            print("Property group not found.")
+
+                # Remove old buttons
+                for i in reversed(range(button_layout.count())):
+                    button_layout.itemAt(i).widget().deleteLater()
+
+                # Recreate and add the updated Save button
+                save_button = QPushButton("Update Property")
+                save_button.clicked.connect(lambda: self.update_property(row))
+                button_layout.addWidget(save_button)
+
+                # Add Cancel button
     
 
     def update_property(self, row):
@@ -400,20 +457,6 @@ class RoomPropertyManagementUI(QWidget):
             }
         """)
 
-    # def edit_room(self, row):
-    #     self.clear_layout()
-    #     self.show_add_room_form()
-
-    #     # Populate form fields with existing data
-    #     self.room_number_input.setText(self.rooms_table.item(row, 0).text())
-    #     self.room_type_input.setCurrentText(self.rooms_table.item(row, 1).text())
-    #     self.room_size_input.setText(self.rooms_table.item(row, 2).text())
-    #     self.room_rental_price_input.setText(self.rooms_table.item(row, 3).text())
-
-    #     save_button = self.main_layout.itemAt(0).widget().layout().itemAt(4).layout().itemAt(0).widget()
-    #     save_button.setText("Update Room")
-    #     save_button.clicked.disconnect()
-    #     save_button.clicked.connect(partial(self.update_room, row))
     def edit_room(self, row):
         # Clear the current layout and show the Add Room form
         self.clear_layout()
@@ -430,12 +473,21 @@ class RoomPropertyManagementUI(QWidget):
             # Update the Save button to behave as an Update button
             if hasattr(self, 'save_button'):
                 self.save_button.setText("Update Room")
-                self.save_button.clicked.disconnect()
+                self.disconnect_save_button()
                 self.save_button.clicked.connect(lambda: self.update_room(row))
             else:
                 print("Save button not found!")
         else:
             print("Input fields for editing a room are not initialized!")
+    def disconnect_save_button(self):
+        """Safely disconnect all signals from the save button."""
+        if hasattr(self, 'save_button') and self.save_button:
+            try:
+                while self.save_button.receivers(self.save_button.clicked) > 0:
+                    self.save_button.clicked.disconnect()
+            except TypeError:
+                pass  # Ignore errors if no connections exist
+        
     def show_add_room_form(self):
         self.clear_layout()
         room_group = QGroupBox("Add/Edit Room")
