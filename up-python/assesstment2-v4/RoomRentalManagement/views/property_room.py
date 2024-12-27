@@ -1,4 +1,6 @@
-from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QTableWidget, QTableWidgetItem
+#from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QTableWidget, QTableWidgetItem
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QTableWidget, QTableWidgetItem, QHeaderView
+
 from PyQt6.QtWidgets import QPushButton
 from controllers.property_controller import fetch_properties, fetch_rooms
 from functools import partial
@@ -19,9 +21,6 @@ class PropertyRoomManagement(QWidget):
         self.add_room_btn = QPushButton("Add Room")
         self.add_room_btn.clicked.connect(self.open_add_room_view)
         
-        # Add Refresh Button
-        # self.refresh_btn = QPushButton("Refresh")
-        # self.refresh_btn.clicked.connect(self.load_properties) 
         self.refresh_btn = QPushButton("Refresh")
         self.refresh_btn.clicked.connect(self.refresh_data)  # Connect refresh button to reload both properties and rooms
 
@@ -31,9 +30,8 @@ class PropertyRoomManagement(QWidget):
         self.setLayout(self.layout)
         self.load_properties()
         self.load_rooms()
-
     # def load_properties(self):
-    #     # Fetch updated property data
+    # # Fetch updated property data
     #     properties = fetch_properties()
 
     #     # Begin smooth table update
@@ -42,8 +40,8 @@ class PropertyRoomManagement(QWidget):
     #     self.property_table.setRowCount(0)  # Reset row count
 
     #     # Configure columns
-    #     self.property_table.setColumnCount(5)
-    #     self.property_table.setHorizontalHeaderLabels(["ID", "Name", "Address", "Description", "Actions"])
+    #     self.property_table.setColumnCount(6)  # Increased column count to 6
+    #     self.property_table.setHorizontalHeaderLabels(["ID", "Name", "Address", "Description", "Edit", "Delete"])  # Updated headers
 
     #     # Populate table with new data
     #     for row_data in properties:
@@ -54,25 +52,42 @@ class PropertyRoomManagement(QWidget):
     #         for col, data in enumerate(row_data):
     #             self.property_table.setItem(row, col, QTableWidgetItem(str(data)))
 
-    #         # Add "Edit" button to the last column
+    #         # Add "Edit" button to the "Edit" column
     #         edit_btn = QPushButton("Edit")
     #         edit_btn.clicked.connect(partial(self.open_edit_property_view, row_data))
-    #         self.property_table.setCellWidget(row, 4, edit_btn)
+    #         self.property_table.setCellWidget(row, 4, edit_btn)  # Edit column index is 4
+
+    #         # Add "Delete" button to the "Delete" column
+    #         delete_btn = QPushButton("Delete")
+    #         delete_btn.clicked.connect(partial(self.delete_property_action, row_data[0]))
+    #         self.property_table.setCellWidget(row, 5, delete_btn)  # Delete column index is 5
+
+    #     # Resize columns to fit content
+    #     self.property_table.resizeColumnsToContents()
 
     #     # Re-enable updates
     #     self.property_table.setUpdatesEnabled(True)
+    
     def load_properties(self):
+        from PyQt6.QtCore import Qt
+        from PyQt6.QtWidgets import QAbstractScrollArea
+
         # Fetch updated property data
         properties = fetch_properties()
 
         # Begin smooth table update
-        self.property_table.setUpdatesEnabled(False)  # Disable updates to avoid flickering
-        self.property_table.clearContents()  # Clear existing table contents
-        self.property_table.setRowCount(0)  # Reset row count
+        self.property_table.setUpdatesEnabled(False)
+        self.property_table.clearContents()
+        self.property_table.setRowCount(0)
 
         # Configure columns
-        self.property_table.setColumnCount(6)  # Increased column count to 6
-        self.property_table.setHorizontalHeaderLabels(["ID", "Name", "Address", "Description", "Edit", "Delete"])  # Updated headers
+        self.property_table.setColumnCount(6)
+        self.property_table.setHorizontalHeaderLabels(["ID", "Name", "Address", "Description", "Edit", "Delete"])
+
+        # Set horizontal header behavior
+        self.property_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        self.property_table.horizontalHeader().setStretchLastSection(False)
+        self.property_table.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
 
         # Populate table with new data
         for row_data in properties:
@@ -86,15 +101,22 @@ class PropertyRoomManagement(QWidget):
             # Add "Edit" button to the "Edit" column
             edit_btn = QPushButton("Edit")
             edit_btn.clicked.connect(partial(self.open_edit_property_view, row_data))
-            self.property_table.setCellWidget(row, 4, edit_btn)  # Edit column index is 4
+            self.property_table.setCellWidget(row, 4, edit_btn)
 
             # Add "Delete" button to the "Delete" column
             delete_btn = QPushButton("Delete")
             delete_btn.clicked.connect(partial(self.delete_property_action, row_data[0]))
-            self.property_table.setCellWidget(row, 5, delete_btn)  # Delete column index is 5
+            self.property_table.setCellWidget(row, 5, delete_btn)
+
+        # Resize columns to fit content and enable horizontal scrolling
+        self.property_table.resizeColumnsToContents()
+        self.property_table.setHorizontalScrollMode(QTableWidget.ScrollMode.ScrollPerPixel)
+        self.property_table.setVerticalScrollMode(QTableWidget.ScrollMode.ScrollPerPixel)
 
         # Re-enable updates
         self.property_table.setUpdatesEnabled(True)
+
+
 
 
     def delete_property_action(self, property_id):
@@ -112,55 +134,78 @@ class PropertyRoomManagement(QWidget):
         self.load_rooms()    
 
     # def load_rooms(self):
-    #     rooms = fetch_rooms()
-    #     self.room_table.setRowCount(0)
-    #     self.room_table.setColumnCount(6)
-    #     self.room_table.setHorizontalHeaderLabels(["ID", "Room Name", "Property Name", "Type", "Rental Price", "Actions"])
+    #     from controllers.property_controller import fetch_rooms
+    #     rooms = fetch_rooms()  # Fetch room data from the controller
 
+    #     # Begin smooth table update
+    #     self.room_table.setUpdatesEnabled(False)
+    #     self.room_table.clearContents()
+    #     self.room_table.setRowCount(0)
+
+    #     # Set the correct column headers, including Edit and Delete actions
+    #     self.room_table.setColumnCount(9)  # Adjusted for Edit and Delete columns
+    #     self.room_table.setHorizontalHeaderLabels(
+    #         ["ID", "Room Name", "Property Name", "Room Type", "Room Size", "Rental Price", "Occupancy Status", "Edit", "Delete"]
+    #     )
+
+    #     # Populate table
     #     for row_data in rooms:
     #         row = self.room_table.rowCount()
     #         self.room_table.insertRow(row)
 
-    #         for col, data in enumerate(row_data[:-1]):  # Exclude actions column
+    #         # Map each value from `row_data` to its corresponding column
+    #         for col, data in enumerate(row_data[:7]):  # Ensure only the first 7 columns are populated
     #             self.room_table.setItem(row, col, QTableWidgetItem(str(data)))
 
-    #         # Add Edit Button
+    #         # Add Edit button
     #         edit_btn = QPushButton("Edit")
     #         edit_btn.clicked.connect(lambda _, r=row_data: self.open_edit_room_view(r))
-    #         self.room_table.setCellWidget(row, 5, edit_btn)
+    #         self.room_table.setCellWidget(row, 7, edit_btn)  # Edit column index is 7
+
+    #         # Add Delete button
+    #         delete_btn = QPushButton("Delete")
+    #         delete_btn.clicked.connect(lambda _, r=row_data: self.delete_room_action(r[0]))  # Pass Room ID to delete function
+    #         self.room_table.setCellWidget(row, 8, delete_btn)  # Delete column index is 8
+
+    #     # Re-enable updates
+    #     self.room_table.setUpdatesEnabled(True)
+    
     def load_rooms(self):
-        # Fetch updated room data
-        rooms = fetch_rooms()
+        from controllers.property_controller import fetch_rooms
+        rooms = fetch_rooms()  # Fetch room data from the controller
 
         # Begin smooth table update
-        self.room_table.setUpdatesEnabled(False)  # Disable updates to avoid flickering
-        self.room_table.clearContents()  # Clear existing table contents
-        self.room_table.setRowCount(0)  # Reset row count
+        self.room_table.setUpdatesEnabled(False)
+        self.room_table.clearContents()
+        self.room_table.setRowCount(0)
 
-        # Configure columns
-        self.room_table.setColumnCount(7)  # Adjusted for separate Edit and Delete columns
+        # Set the correct column headers, including Edit and Delete actions
+        self.room_table.setColumnCount(9)  # Adjusted for Edit and Delete columns
         self.room_table.setHorizontalHeaderLabels(
-            ["ID", "Room Name", "Property Name", "Type", "Rental Price", "Edit", "Delete"]
+            ["ID", "Room Name", "Property Name", "Room Type", "Room Size", "Rental Price", "Occupancy Status", "Edit", "Delete"]
         )
 
-        # Populate table with new data
+        # Populate table
         for row_data in rooms:
             row = self.room_table.rowCount()
             self.room_table.insertRow(row)
 
-            # Fill columns with data (ID, Room Name, Property Name, Type, Rental Price)
-            for col, data in enumerate(row_data[:-1]):  # Exclude action data
+            # Map each value from `row_data` to its corresponding column
+            for col, data in enumerate(row_data[:7]):  # Ensure only the first 7 columns are populated
                 self.room_table.setItem(row, col, QTableWidgetItem(str(data)))
 
-            # Add "Edit" button to the "Edit" column
+            # Add Edit button
             edit_btn = QPushButton("Edit")
-            edit_btn.clicked.connect(partial(self.open_edit_room_view, row_data))  # Pass room data to edit function
-            self.room_table.setCellWidget(row, 5, edit_btn)  # Edit column index is 5
+            edit_btn.clicked.connect(lambda _, r=row_data: self.open_edit_room_view(r))
+            self.room_table.setCellWidget(row, 7, edit_btn)  # Edit column index is 7
 
-            # Add "Delete" button to the "Delete" column
+            # Add Delete button
             delete_btn = QPushButton("Delete")
-            delete_btn.clicked.connect(partial(self.delete_room_action, row_data[0]))  # Pass room ID to delete function
-            self.room_table.setCellWidget(row, 6, delete_btn)  # Delete column index is 6
+            delete_btn.clicked.connect(lambda _, r=row_data: self.delete_room_action(r[0]))  # Pass Room ID to delete function
+            self.room_table.setCellWidget(row, 8, delete_btn)  # Delete column index is 8
+
+        # Resize columns to fit content
+        self.room_table.resizeColumnsToContents()
 
         # Re-enable updates
         self.room_table.setUpdatesEnabled(True)
@@ -185,19 +230,18 @@ class PropertyRoomManagement(QWidget):
         }
         self.edit_property_view = EditPropertyView(property_data[0], current_data)
         self.edit_property_view.show()
-
     def open_edit_room_view(self, room_data):
         from views.edit_room import EditRoomView
         current_data = {
-            'name': room_data[1],
-            'type': room_data[2],
-            'size': room_data[3],
-            'rental_price': room_data[4],
-            'amenities': room_data[5]
+            'name': str(room_data[1]),
+            'type': str(room_data[2]),
+            'size': str(room_data[3]),
+            'rental_price': str(room_data[4]),
+            'amenities': str(room_data[5])  # Convert amenities to string
         }
         self.edit_room_view = EditRoomView(room_data[0], current_data)
         self.edit_room_view.show()
-            
+        
 
     def open_add_property_view(self):
         from views.add_property import AddPropertyView
