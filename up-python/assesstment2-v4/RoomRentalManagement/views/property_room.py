@@ -111,23 +111,70 @@ class PropertyRoomManagement(QWidget):
         self.load_properties()
         self.load_rooms()    
 
-    def load_rooms(self):
-        rooms = fetch_rooms()
-        self.room_table.setRowCount(0)
-        self.room_table.setColumnCount(6)
-        self.room_table.setHorizontalHeaderLabels(["ID", "Room Name", "Property Name", "Type", "Rental Price", "Actions"])
+    # def load_rooms(self):
+    #     rooms = fetch_rooms()
+    #     self.room_table.setRowCount(0)
+    #     self.room_table.setColumnCount(6)
+    #     self.room_table.setHorizontalHeaderLabels(["ID", "Room Name", "Property Name", "Type", "Rental Price", "Actions"])
 
+    #     for row_data in rooms:
+    #         row = self.room_table.rowCount()
+    #         self.room_table.insertRow(row)
+
+    #         for col, data in enumerate(row_data[:-1]):  # Exclude actions column
+    #             self.room_table.setItem(row, col, QTableWidgetItem(str(data)))
+
+    #         # Add Edit Button
+    #         edit_btn = QPushButton("Edit")
+    #         edit_btn.clicked.connect(lambda _, r=row_data: self.open_edit_room_view(r))
+    #         self.room_table.setCellWidget(row, 5, edit_btn)
+    def load_rooms(self):
+        # Fetch updated room data
+        rooms = fetch_rooms()
+
+        # Begin smooth table update
+        self.room_table.setUpdatesEnabled(False)  # Disable updates to avoid flickering
+        self.room_table.clearContents()  # Clear existing table contents
+        self.room_table.setRowCount(0)  # Reset row count
+
+        # Configure columns
+        self.room_table.setColumnCount(7)  # Adjusted for separate Edit and Delete columns
+        self.room_table.setHorizontalHeaderLabels(
+            ["ID", "Room Name", "Property Name", "Type", "Rental Price", "Edit", "Delete"]
+        )
+
+        # Populate table with new data
         for row_data in rooms:
             row = self.room_table.rowCount()
             self.room_table.insertRow(row)
 
-            for col, data in enumerate(row_data[:-1]):  # Exclude actions column
+            # Fill columns with data (ID, Room Name, Property Name, Type, Rental Price)
+            for col, data in enumerate(row_data[:-1]):  # Exclude action data
                 self.room_table.setItem(row, col, QTableWidgetItem(str(data)))
 
-            # Add Edit Button
+            # Add "Edit" button to the "Edit" column
             edit_btn = QPushButton("Edit")
-            edit_btn.clicked.connect(lambda _, r=row_data: self.open_edit_room_view(r))
-            self.room_table.setCellWidget(row, 5, edit_btn)
+            edit_btn.clicked.connect(partial(self.open_edit_room_view, row_data))  # Pass room data to edit function
+            self.room_table.setCellWidget(row, 5, edit_btn)  # Edit column index is 5
+
+            # Add "Delete" button to the "Delete" column
+            delete_btn = QPushButton("Delete")
+            delete_btn.clicked.connect(partial(self.delete_room_action, row_data[0]))  # Pass room ID to delete function
+            self.room_table.setCellWidget(row, 6, delete_btn)  # Delete column index is 6
+
+        # Re-enable updates
+        self.room_table.setUpdatesEnabled(True)
+
+    def delete_room_action(self, room_id):
+        from controllers.property_controller import delete_room
+        try:
+            # Call the controller to delete the room
+            delete_room(room_id)
+            print(f"Room ID {room_id} deleted successfully!")
+            self.load_rooms()  # Refresh table after deletion
+        except Exception as e:
+            print(f"Failed to delete Room ID {room_id}: {e}")
+
     def open_edit_property_view(self, property_data):
         from views.edit_property import EditPropertyView
         current_data = {

@@ -6,10 +6,12 @@ from PyQt6.QtWidgets import (
 )
 from views.dashboard import Dashboard  # Main dashboard
 from views.property_room import PropertyRoomManagement
+from views.rental_management import RentalManagement
 from views.tenant import TenantManagement
 from views.payment import PaymentManagement
 from views.dashboard import Dashboard  # Reports view
 from PyQt6.QtWidgets import QHeaderView
+from views.tenant_management import TenantManagement  # Import the TenantManagement view
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,6 +27,7 @@ class MainWindow(QMainWindow):
         self.dashboard = Dashboard()
         self.property_room_management = PropertyRoomManagement()
         self.tenant_management = TenantManagement()
+        self.rental_management =RentalManagement()
         self.payment_management = PaymentManagement()
         self.reports = Dashboard()
 
@@ -32,6 +35,7 @@ class MainWindow(QMainWindow):
         self.central_widget.addWidget(self.dashboard)
         self.central_widget.addWidget(self.property_room_management)
         self.central_widget.addWidget(self.tenant_management)
+        self.central_widget.addWidget(self.rental_management)
         self.central_widget.addWidget(self.payment_management)
         self.central_widget.addWidget(self.reports)
 
@@ -48,9 +52,12 @@ class MainWindow(QMainWindow):
 
         property_room_btn = QPushButton("Properties & Rooms")
         property_room_btn.clicked.connect(lambda: self.central_widget.setCurrentWidget(self.property_room_management))
-
+        
         tenant_btn = QPushButton("Tenants")
         tenant_btn.clicked.connect(lambda: self.central_widget.setCurrentWidget(self.tenant_management))
+        
+        rental_btn = QPushButton("Rental Management")
+        rental_btn.clicked.connect(lambda: self.central_widget.setCurrentWidget(self.rental_management))
 
         payment_btn = QPushButton("Payments")
         payment_btn.clicked.connect(lambda: self.central_widget.setCurrentWidget(self.payment_management))
@@ -58,7 +65,7 @@ class MainWindow(QMainWindow):
         reports_btn = QPushButton("Reports")
         reports_btn.clicked.connect(lambda: self.central_widget.setCurrentWidget(self.reports))
 
-        for btn in [dashboard_btn, property_room_btn, tenant_btn, payment_btn, reports_btn]:
+        for btn in [dashboard_btn, property_room_btn,rental_btn, tenant_btn, payment_btn, reports_btn]:
             layout.addWidget(btn)
 
         container.setLayout(layout)
