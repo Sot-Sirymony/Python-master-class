@@ -2,7 +2,7 @@ import sqlite3
 import csv
 
 def get_rent_collection_report():
-    connection = sqlite3.connect('rental_management.db')
+    connection = sqlite3.connect('rental_management_v2.db')
     cursor = connection.cursor()
     cursor.execute("""
     SELECT 
@@ -19,7 +19,7 @@ def get_rent_collection_report():
     return data
 
 def get_occupancy_rates():
-    connection = sqlite3.connect('rental_management.db')
+    connection = sqlite3.connect('rental_management_v2.db')
     cursor = connection.cursor()
     cursor.execute("""
     SELECT 

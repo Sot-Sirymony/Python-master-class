@@ -2,7 +2,7 @@
 from sqlite3 import connect
 
 def set_rental_price_and_terms(room_id, rental_price, payment_frequency, security_deposit, grace_period):
-    connection = connect('rental_management.db')
+    connection = connect('rental_management_v2.db')
     cursor = connection.cursor()
     try:
         cursor.execute("""
@@ -20,7 +20,7 @@ def set_rental_price_and_terms(room_id, rental_price, payment_frequency, securit
         connection.close()
         
 def update_tenant_for_room(room_id, tenant_id):
-    connection = connect('rental_management.db')
+    connection = connect('rental_management_v2.db')
     cursor = connection.cursor()
     try:
         cursor.execute("""
@@ -36,7 +36,7 @@ def update_tenant_for_room(room_id, tenant_id):
         connection.close()          
 
 def update_occupancy_status(room_id, status):
-    connection = connect('rental_management.db')
+    connection = connect('rental_management_v2.db')
     cursor = connection.cursor()
     try:
         cursor.execute("""
@@ -83,7 +83,7 @@ def update_occupancy_status(room_id, status):
 #     finally:
 #         connection.close()
 def fetch_room_details():
-    connection = connect('rental_management.db')
+    connection = connect('rental_management_v2.db')
     cursor = connection.cursor()
     try:
         # Query to fetch room details along with tenant information
@@ -110,3 +110,60 @@ def fetch_room_details():
     finally:
         # Ensure the database connection is closed
         connection.close()
+        
+# def fetch_room_details_with_booking():
+#     connection =  connect('rental_management_v2.db')
+#     cursor = connection.cursor()
+#     try:
+#         cursor.execute("""
+#         SELECT
+#             r.id, r.name, r.type, r.rental_price, r.payment_frequency, 
+#             r.security_deposit, r.grace_period, r.occupancy_status, 
+#             t.first_name || ' ' || t.last_name AS tenant_name,
+#             CASE
+#                 WHEN b.status IS NULL THEN 'No Booking'
+#                 ELSE b.status
+#             END AS booking_status
+#         FROM Room r
+#         LEFT JOIN Tenant t ON r.tenant_id = t.id
+#         LEFT JOIN (
+#             SELECT room_id, status
+#             FROM Booking
+#             WHERE status IN ('Pending', 'Active') -- Filter for relevant bookings
+#         ) b ON r.id = b.room_id;
+#         """)
+#         return cursor.fetchall()
+#     except Exception as e:
+#         print(f"Error fetching room details with booking info: {e}")
+#         return []
+#     finally:
+#         connection.close()
+        
+def fetch_room_details_with_booking():
+    connection = connect('rental_management_v2.db')
+    cursor = connection.cursor()
+    try:
+        cursor.execute("""
+        SELECT
+            r.id, r.name, r.type, r.rental_price, r.payment_frequency, 
+            r.security_deposit, r.grace_period, r.occupancy_status, 
+            t.first_name || ' ' || t.last_name AS tenant_name,
+            CASE
+                WHEN b.status IS NULL THEN r.occupancy_status
+                ELSE b.status
+            END AS dynamic_status -- Dynamic status based on bookings
+        FROM Room r
+        LEFT JOIN Tenant t ON r.tenant_id = t.id
+        LEFT JOIN (
+            SELECT room_id, status
+            FROM Booking
+            WHERE status IN ('Pending', 'Active') -- Only consider relevant booking statuses
+        ) b ON r.id = b.room_id;
+        """)
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching room details with booking info: {e}")
+        return []
+    finally:
+        connection.close()        
+        

@@ -2,7 +2,7 @@
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QTableWidget, QTableWidgetItem, QHeaderView
 
 from PyQt6.QtWidgets import QPushButton
-from controllers.property_controller import fetch_properties, fetch_rooms
+from controllers.property_controller import fetch_properties
 from functools import partial
 
 class PropertyRoomManagement(QWidget):

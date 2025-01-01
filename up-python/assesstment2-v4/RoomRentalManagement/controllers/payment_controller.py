@@ -1,7 +1,7 @@
 import sqlite3
 
 def add_payment(tenant, room, amount, date, method):
-    connection = sqlite3.connect('rental_management.db')
+    connection = sqlite3.connect('rental_management_v2.db')
     cursor = connection.cursor()
     cursor.execute("""
     INSERT INTO Payment (tenant_id, room_id, amount, date, method)
@@ -15,7 +15,7 @@ def add_payment(tenant, room, amount, date, method):
     connection.close()
 
 def get_all_payments():
-    connection = sqlite3.connect('rental_management.db')
+    connection = sqlite3.connect('rental_management_v2.db')
     cursor = connection.cursor()
     cursor.execute("""
     SELECT 
